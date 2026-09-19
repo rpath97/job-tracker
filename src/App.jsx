@@ -1,34 +1,86 @@
-import { useState } from 'react'
-import { Briefcase, Plus } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  Briefcase,
+  CircleCheckBig,
+  ExternalLink,
+  Plus,
+  Search,
+  Trash2,
+  X,
+} from 'lucide-react'
 import './index.css'
 
+const STORAGE_KEY = 'job-tracker-jobs-v1'
+
 const COLUMNS = [
-  { id: 'backlog', title: 'Backlog' },
-  { id: 'applied', title: 'Applied' },
-  { id: 'interviews', title: 'Interviews' },
-  { id: 'offers', title: 'Offers' },
+  { id: 'backlog', title: 'Backlog', description: 'Roles to review' },
+  { id: 'applied', title: 'Applied', description: 'Applications submitted' },
+  { id: 'interviews', title: 'Interviews', description: 'Conversations in progress' },
+  { id: 'offers', title: 'Offers', description: 'Positive outcomes' },
 ]
 
 const initialJobs = [
-  { id: '1', title: 'Senior Frontend Developer', company: 'Acme Corp', date: '2025-03-01', column: 'backlog' },
-  { id: '2', title: 'Full Stack Engineer', company: 'TechStart Inc', date: '2025-03-05', column: 'applied' },
-  { id: '3', title: 'React Developer', company: 'Design Co', date: '2025-03-07', column: 'interviews' },
+  { id: '1', title: 'Senior Frontend Developer', company: 'Acme Corp', date: '2025-03-01', column: 'backlog', url: '' },
+  { id: '2', title: 'Full Stack Engineer', company: 'TechStart Inc', date: '2025-03-05', column: 'applied', url: '' },
+  { id: '3', title: 'React Developer', company: 'Design Co', date: '2025-03-07', column: 'interviews', url: '' },
 ]
 
-function JobCard({ job }) {
+function formatDate(value) {
+  if (!value) return 'No date'
+  return new Date(`${value}T00:00:00`).toLocaleDateString('en-AU', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+function JobCard({ job, onMove, onDelete }) {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-zinc-200 bg-white p-3 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800">
-      <div className="flex items-start gap-2">
-        <Briefcase className="mt-0.5 h-4 w-4 shrink-0 text-zinc-500 dark:text-zinc-400" />
-        <div className="min-w-0 flex-1">
-          <h3 className="font-medium text-zinc-900 dark:text-zinc-100 truncate">{job.title}</h3>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400 truncate">{job.company}</p>
+    <article className="group flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-900">
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5 rounded-lg bg-slate-100 p-2 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+          <Briefcase className="h-4 w-4" />
         </div>
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate font-semibold text-zinc-900 dark:text-zinc-100">{job.title}</h3>
+          <p className="truncate text-sm text-zinc-600 dark:text-zinc-400">{job.company}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => onDelete(job.id)}
+          aria-label={`Delete ${job.title}`}
+          className="rounded-md p-1.5 text-zinc-400 opacity-0 transition hover:bg-red-50 hover:text-red-600 group-hover:opacity-100 focus:opacity-100 dark:hover:bg-red-950/40"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
       </div>
-      <span className="inline-flex w-fit items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-700 dark:text-slate-300">
-        {new Date(job.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-      </span>
-    </div>
+
+      <div className="flex items-center justify-between gap-2">
+        <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+          {formatDate(job.date)}
+        </span>
+        {job.url && (
+          <a
+            href={job.url}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-white"
+          >
+            Open listing <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        )}
+      </div>
+
+      <label className="sr-only" htmlFor={`move-${job.id}`}>Move job</label>
+      <select
+        id={`move-${job.id}`}
+        value={job.column}
+        onChange={event => onMove(job.id, event.target.value)}
+        className="rounded-lg border border-zinc-200 bg-zinc-50 px-2.5 py-2 text-xs font-medium text-zinc-700 outline-none transition focus:border-slate-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+      >
+        {COLUMNS.map(column => <option key={column.id} value={column.id}>{column.title}</option>)}
+      </select>
+    </article>
   )
 }
 
@@ -36,54 +88,41 @@ function AddJobModal({ columnId, columnTitle, onClose, onAdd }) {
   const [title, setTitle] = useState('')
   const [company, setCompany] = useState('')
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
+  const [url, setUrl] = useState('')
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = event => {
+    event.preventDefault()
     if (!title.trim() || !company.trim()) return
-    onAdd({ title: title.trim(), company: company.trim(), date, column: columnId })
+    onAdd({
+      title: title.trim(),
+      company: company.trim(),
+      date,
+      url: url.trim(),
+      column: columnId,
+    })
     onClose()
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/50 p-4" onClick={onClose}>
-      <div className="w-full max-w-sm rounded-xl border border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-700 dark:bg-zinc-800" onClick={e => e.stopPropagation()}>
-        <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Add job to {columnTitle}</h3>
-        <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
-          <input
-            type="text"
-            placeholder="Job title"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-500 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-400"
-            autoFocus
-          />
-          <input
-            type="text"
-            placeholder="Company name"
-            value={company}
-            onChange={e => setCompany(e.target.value)}
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-500 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-400"
-          />
-          <input
-            type="date"
-            value={date}
-            onChange={e => setDate(e.target.value)}
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100"
-          />
-          <div className="mt-2 flex gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 rounded-lg border border-zinc-300 bg-white py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 rounded-lg bg-slate-600 py-2 text-sm font-medium text-white hover:bg-slate-700 dark:bg-slate-500 dark:hover:bg-slate-600"
-            >
-              Add Job
-            </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/60 p-4 backdrop-blur-sm" onClick={onClose}>
+      <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-700 dark:bg-zinc-900" onClick={event => event.stopPropagation()}>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">New opportunity</p>
+            <h3 className="mt-1 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Add to {columnTitle}</h3>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Close dialog" className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-3">
+          <input type="text" placeholder="Job title" value={title} onChange={event => setTitle(event.target.value)} className="rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-zinc-900 outline-none focus:border-slate-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" autoFocus required />
+          <input type="text" placeholder="Company name" value={company} onChange={event => setCompany(event.target.value)} className="rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-zinc-900 outline-none focus:border-slate-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" required />
+          <input type="date" value={date} onChange={event => setDate(event.target.value)} className="rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-zinc-900 outline-none focus:border-slate-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          <input type="url" placeholder="Job listing URL (optional)" value={url} onChange={event => setUrl(event.target.value)} className="rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-zinc-900 outline-none focus:border-slate-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100" />
+          <div className="mt-2 flex gap-3">
+            <button type="button" onClick={onClose} className="flex-1 rounded-lg border border-zinc-300 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800">Cancel</button>
+            <button type="submit" className="flex-1 rounded-lg bg-slate-800 py-2.5 text-sm font-semibold text-white hover:bg-slate-700 dark:bg-slate-200 dark:text-zinc-900 dark:hover:bg-white">Add job</button>
           </div>
         </form>
       </div>
@@ -92,68 +131,110 @@ function AddJobModal({ columnId, columnTitle, onClose, onAdd }) {
 }
 
 export default function App() {
-  const [jobs, setJobs] = useState(initialJobs)
+  const [jobs, setJobs] = useState(() => {
+    try {
+      const saved = window.localStorage.getItem(STORAGE_KEY)
+      return saved ? JSON.parse(saved) : initialJobs
+    } catch {
+      return initialJobs
+    }
+  })
   const [addModal, setAddModal] = useState(null)
+  const [query, setQuery] = useState('')
 
-  const addJob = (payload) => {
-    setJobs(prev => [...prev, {
-      id: crypto.randomUUID(),
-      title: payload.title,
-      company: payload.company,
-      date: payload.date,
-      column: payload.column,
-    }])
-  }
+  useEffect(() => {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs))
+  }, [jobs])
 
-  const totalJobs = jobs.length
+  const filteredJobs = useMemo(() => {
+    const normalized = query.trim().toLowerCase()
+    if (!normalized) return jobs
+    return jobs.filter(job => `${job.title} ${job.company}`.toLowerCase().includes(normalized))
+  }, [jobs, query])
+
+  const addJob = payload => setJobs(previous => [...previous, { ...payload, id: crypto.randomUUID() }])
+  const deleteJob = id => setJobs(previous => previous.filter(job => job.id !== id))
+  const moveJob = (id, column) => setJobs(previous => previous.map(job => job.id === id ? { ...job, column } : job))
+  const counts = COLUMNS.map(column => ({ ...column, count: jobs.filter(job => job.column === column.id).length }))
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-zinc-900">
-      <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
-          <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Job Tracker</h1>
-          <div className="flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-            <Briefcase className="h-4 w-4" />
-            <span>Total Jobs: {totalJobs}</span>
+    <div className="min-h-screen bg-slate-100 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+      <header className="border-b border-zinc-200 bg-white/95 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-slate-900 p-2.5 text-white dark:bg-white dark:text-zinc-900"><Briefcase className="h-5 w-5" /></div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Career workspace</p>
+              <h1 className="text-xl font-bold tracking-tight">Job Tracker</h1>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="hidden items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 sm:flex dark:bg-emerald-950/40 dark:text-emerald-300">
+              <CircleCheckBig className="h-4 w-4" /> Saved in this browser
+            </div>
+            <div className="rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700 dark:bg-zinc-800 dark:text-zinc-300">
+              {jobs.length} {jobs.length === 1 ? 'job' : 'jobs'}
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {COLUMNS.map(col => (
-            <div
-              key={col.id}
-              className="flex flex-col rounded-xl border border-zinc-200 bg-slate-50/80 dark:border-zinc-700 dark:bg-zinc-800/50"
-            >
-              <div className="border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
-                <h2 className="font-semibold text-zinc-900 dark:text-zinc-100">{col.title}</h2>
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <section className="mb-7 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+          <div>
+            <p className="text-sm font-medium text-slate-500">A focused view of your search</p>
+            <h2 className="mt-1 text-3xl font-bold tracking-tight">Keep every opportunity moving.</h2>
+          </div>
+          <div className="flex w-full flex-col gap-3 sm:flex-row md:w-auto">
+            <label className="relative flex-1 sm:min-w-64">
+              <span className="sr-only">Search jobs</span>
+              <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-zinc-400" />
+              <input type="search" placeholder="Search jobs or companies" value={query} onChange={event => setQuery(event.target.value)} className="w-full rounded-lg border border-zinc-300 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-slate-500 dark:border-zinc-700 dark:bg-zinc-900" />
+            </label>
+          </div>
+        </section>
+
+        <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {counts.map(column => (
+            <div key={column.id} className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+              <p className="text-sm font-medium text-zinc-500">{column.title}</p>
+              <p className="mt-1 text-2xl font-bold">{column.count}</p>
+            </div>
+          ))}
+        </section>
+
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {COLUMNS.map(column => (
+            <div key={column.id} className="flex min-h-80 flex-col rounded-2xl border border-zinc-200 bg-white/70 dark:border-zinc-800 dark:bg-zinc-900/60">
+              <div className="border-b border-zinc-200 px-4 py-4 dark:border-zinc-800">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <h3 className="font-semibold">{column.title}</h3>
+                    <p className="mt-1 text-xs text-zinc-500">{column.description}</p>
+                  </div>
+                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700 dark:bg-zinc-800 dark:text-zinc-300">{counts.find(item => item.id === column.id)?.count}</span>
+                </div>
               </div>
               <div className="flex flex-1 flex-col gap-3 p-4">
-                {jobs.filter(j => j.column === col.id).map(job => (
-                  <JobCard key={job.id} job={job} />
+                {filteredJobs.filter(job => job.column === column.id).map(job => (
+                  <JobCard key={job.id} job={job} onMove={moveJob} onDelete={deleteJob} />
                 ))}
-                <button
-                  onClick={() => setAddModal({ columnId: col.id, columnTitle: col.title })}
-                  className="flex items-center justify-center gap-2 rounded-lg border border-dashed border-zinc-300 py-2.5 text-sm font-medium text-zinc-600 transition-colors hover:border-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:border-zinc-600 dark:text-zinc-400 dark:hover:border-zinc-500 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
-                >
-                  <Plus className="h-4 w-4" />
-                  Add Job
+                <button type="button" onClick={() => setAddModal({ columnId: column.id, columnTitle: column.title })} className="mt-auto flex items-center justify-center gap-2 rounded-xl border border-dashed border-zinc-300 py-3 text-sm font-semibold text-zinc-600 transition hover:border-slate-500 hover:bg-slate-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800">
+                  <Plus className="h-4 w-4" /> Add job
                 </button>
               </div>
             </div>
           ))}
-        </div>
+        </section>
+
+        {filteredJobs.length === 0 && (
+          <div className="mt-6 rounded-xl border border-dashed border-zinc-300 p-8 text-center text-sm text-zinc-500 dark:border-zinc-700">
+            No jobs match your search.
+          </div>
+        )}
       </main>
 
-      {addModal && (
-        <AddJobModal
-          columnId={addModal.columnId}
-          columnTitle={addModal.columnTitle}
-          onClose={() => setAddModal(null)}
-          onAdd={addJob}
-        />
-      )}
+      {addModal && <AddJobModal columnId={addModal.columnId} columnTitle={addModal.columnTitle} onClose={() => setAddModal(null)} onAdd={addJob} />}
     </div>
   )
 }
