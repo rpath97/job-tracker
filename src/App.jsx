@@ -37,7 +37,7 @@ function formatDate(value) {
   })
 }
 
-function AuthScreen() {
+function AuthScreen({ onDemo }) {
   const [mode, setMode] = useState('sign-in')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -79,6 +79,9 @@ function AuthScreen() {
         </form>
         <button type="button" onClick={() => { setMode(mode === 'sign-in' ? 'sign-up' : 'sign-in'); setMessage('') }} className="mt-4 w-full text-sm font-medium text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-white">
           {mode === 'sign-in' ? 'Need an account? Create one' : 'Already have an account? Sign in'}
+        </button>
+        <button type="button" onClick={onDemo} className="mt-3 w-full rounded-lg border border-zinc-300 py-2.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800">
+          Continue as demo
         </button>
       </section>
     </main>
@@ -142,6 +145,7 @@ function AddJobModal({ columnId, columnTitle, onClose, onAdd }) {
 
 export default function App() {
   const [session, setSession] = useState(null)
+  const [demoMode, setDemoMode] = useState(false)
   const [authReady, setAuthReady] = useState(!supabaseConfigured)
   const [jobs, setJobs] = useState(() => {
     try {
@@ -221,7 +225,7 @@ export default function App() {
   const counts = COLUMNS.map(column => ({ ...column, count: jobs.filter(job => job.column === column.id).length }))
 
   if (supabaseConfigured && !authReady) return <main className="flex min-h-screen items-center justify-center bg-zinc-950 text-zinc-200">Loading…</main>
-  if (supabaseConfigured && !session) return <AuthScreen />
+  if (supabaseConfigured && !session && !demoMode) return <AuthScreen onDemo={() => setDemoMode(true)} />
 
   return (
     <div className="min-h-screen bg-slate-100 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
