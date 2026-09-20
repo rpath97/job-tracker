@@ -249,7 +249,7 @@ export default function App() {
   return (
     <div className="app-shell min-h-screen text-white">
       <header className="dashboard-header">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6 lg:px-8">
+        <div className="dashboard-header-inner mx-auto flex w-full max-w-[1440px] flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <Brand />
           <div className="flex items-center gap-3">
             <div className="success-badge hidden items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold sm:flex">{supabaseConfigured && session ? <Cloud className="h-4 w-4" /> : <CircleCheckBig className="h-4 w-4" />}{supabaseConfigured && session ? 'Cloud backup on' : 'Saved in this browser'}</div>
@@ -259,8 +259,8 @@ export default function App() {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="mb-7 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+      <main className="dashboard-main relative z-10 mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8">
+        <section className="dashboard-hero mb-5 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <p className="text-sm font-semibold text-blue-300">{session ? `Signed in as ${session.user.email}` : 'Local demo mode'}</p>
             <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">Keep every opportunity moving.</h2>
@@ -270,20 +270,20 @@ export default function App() {
 
         {cloudError && <div className="mb-5 rounded-2xl border border-amber-300/20 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">{cloudError}</div>}
 
-        <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <section className="metrics-grid mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
           {counts.map(column => <div key={column.id} className="metric-card rounded-2xl p-5"><p className="text-sm font-medium text-slate-400">{column.title}</p><p className="mt-2 text-3xl font-extrabold text-white">{column.count}</p></div>)}
         </section>
 
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="kanban-grid grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {COLUMNS.map(column => (
-            <div key={column.id} className="kanban-column flex min-h-80 flex-col rounded-3xl">
+            <div key={column.id} className="kanban-column flex min-h-0 flex-col rounded-3xl">
               <div className="border-b border-white/10 px-4 py-4">
                 <div className="flex items-center justify-between gap-3">
                   <div><h3 className="font-bold text-white">{column.title}</h3><p className="mt-1 text-xs text-slate-400">{column.description}</p></div>
                   <span className="soft-badge rounded-full px-2.5 py-1 text-xs font-bold">{counts.find(item => item.id === column.id)?.count}</span>
                 </div>
               </div>
-              <div className="flex flex-1 flex-col gap-3 p-4">
+              <div className="kanban-body flex min-h-0 flex-1 flex-col gap-3 p-4">
                 {filteredJobs.filter(job => job.column === column.id).map(job => <JobCard key={job.id} job={job} onMove={moveJob} onDelete={deleteJob} />)}
                 <button type="button" onClick={() => setAddModal({ columnId: column.id, columnTitle: column.title })} className="add-job-btn mt-auto flex items-center justify-center gap-2 rounded-2xl py-3 text-sm font-semibold"><Plus className="h-4 w-4" /> Add job</button>
               </div>
