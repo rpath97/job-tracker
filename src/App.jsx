@@ -37,6 +37,18 @@ function formatDate(value) {
   })
 }
 
+function Brand() {
+  return (
+    <div className="flex items-center gap-4">
+      <div className="brand-mark rounded-2xl p-3 text-white"><Briefcase className="h-6 w-6" /></div>
+      <div>
+        <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-300">Career workspace</p>
+        <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-white">Job Tracker</h1>
+      </div>
+    </div>
+  )
+}
+
 function AuthScreen({ onDemo }) {
   const [mode, setMode] = useState('sign-in')
   const [email, setEmail] = useState('')
@@ -60,29 +72,36 @@ function AuthScreen({ onDemo }) {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 dark:bg-zinc-950">
-      <section className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-7 shadow-xl dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mb-6 flex items-center gap-3">
-          <div className="rounded-xl bg-slate-900 p-2.5 text-white dark:bg-white dark:text-zinc-900"><Briefcase className="h-5 w-5" /></div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Career workspace</p>
-            <h1 className="text-2xl font-bold">Job Tracker</h1>
-          </div>
+    <main className="app-shell flex min-h-screen flex-col items-center justify-center px-4 py-12">
+      <section className="glass-card w-full max-w-xl rounded-[30px] p-7 sm:p-10">
+        <Brand />
+        <div className="mt-10">
+          <h2 className="text-3xl font-bold tracking-tight text-white">{mode === 'sign-in' ? 'Welcome back' : 'Create your account'}</h2>
+          <p className="mt-2 text-base text-slate-300">Sign in to keep your applications backed up across devices.</p>
         </div>
-        <h2 className="text-xl font-semibold">{mode === 'sign-in' ? 'Welcome back' : 'Create your account'}</h2>
-        <p className="mt-1 text-sm text-zinc-500">Sign in to keep your applications backed up across devices.</p>
-        <form onSubmit={submit} className="mt-6 flex flex-col gap-3">
-          <input type="email" placeholder="Email address" value={email} onChange={event => setEmail(event.target.value)} className="rounded-lg border border-zinc-300 bg-white px-3 py-2.5 outline-none focus:border-slate-500 dark:border-zinc-700 dark:bg-zinc-800" required />
-          <input type="password" placeholder="Password" minLength="6" value={password} onChange={event => setPassword(event.target.value)} className="rounded-lg border border-zinc-300 bg-white px-3 py-2.5 outline-none focus:border-slate-500 dark:border-zinc-700 dark:bg-zinc-800" required />
-          {message && <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">{message}</p>}
-          <button type="submit" disabled={busy} className="rounded-lg bg-slate-800 py-2.5 text-sm font-semibold text-white hover:bg-slate-700 disabled:opacity-60 dark:bg-slate-200 dark:text-zinc-900">{busy ? 'Please wait…' : mode === 'sign-in' ? 'Sign in' : 'Create account'}</button>
+
+        <form onSubmit={submit} className="mt-8 flex flex-col gap-4">
+          <input type="email" placeholder="Email address" value={email} onChange={event => setEmail(event.target.value)} className="auth-input rounded-2xl px-4 py-4" required />
+          <input type="password" placeholder="Password" minLength="6" value={password} onChange={event => setPassword(event.target.value)} className="auth-input rounded-2xl px-4 py-4" required />
+          {message && <p className="rounded-xl border border-amber-300/20 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">{message}</p>}
+          <button type="submit" disabled={busy} className="primary-btn rounded-2xl py-4 text-base font-bold disabled:opacity-60">{busy ? 'Please wait…' : mode === 'sign-in' ? 'Sign in' : 'Create account'}</button>
         </form>
-        <button type="button" onClick={() => { setMode(mode === 'sign-in' ? 'sign-up' : 'sign-in'); setMessage('') }} className="mt-4 w-full text-sm font-medium text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-white">
+
+        <button type="button" onClick={() => { setMode(mode === 'sign-in' ? 'sign-up' : 'sign-in'); setMessage('') }} className="mt-5 w-full text-sm font-semibold text-slate-300 transition hover:text-blue-300">
           {mode === 'sign-in' ? 'Need an account? Create one' : 'Already have an account? Sign in'}
         </button>
-        <button type="button" onClick={onDemo} className="mt-3 w-full rounded-lg border border-zinc-300 py-2.5 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800">
+
+        <div className="my-5 flex items-center gap-4 text-xs text-slate-500"><span className="h-px flex-1 bg-white/10" /><span>or</span><span className="h-px flex-1 bg-white/10" /></div>
+
+        <button type="button" onClick={onDemo} className="secondary-btn w-full rounded-2xl py-3.5 text-sm font-bold">
           Continue as demo
         </button>
+      </section>
+
+      <section className="relative z-10 mt-8 grid w-full max-w-4xl grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="feature-chip rounded-2xl p-4 text-center"><Cloud className="mx-auto h-5 w-5 text-cyan-300" /><p className="mt-2 font-semibold text-white">Cloud backup</p><p className="mt-1 text-xs text-slate-400">Access your data anywhere</p></div>
+        <div className="feature-chip rounded-2xl p-4 text-center"><CircleCheckBig className="mx-auto h-5 w-5 text-violet-300" /><p className="mt-2 font-semibold text-white">Stay organised</p><p className="mt-1 text-xs text-slate-400">Track every opportunity</p></div>
+        <div className="feature-chip rounded-2xl p-4 text-center"><Briefcase className="mx-auto h-5 w-5 text-amber-300" /><p className="mt-2 font-semibold text-white">Secure & private</p><p className="mt-1 text-xs text-slate-400">Your data is protected</p></div>
       </section>
     </main>
   )
@@ -90,22 +109,22 @@ function AuthScreen({ onDemo }) {
 
 function JobCard({ job, onMove, onDelete }) {
   return (
-    <article className="group flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-900">
+    <article className="job-card group flex flex-col gap-3 rounded-2xl p-4">
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 rounded-lg bg-slate-100 p-2 text-slate-600 dark:bg-slate-800 dark:text-slate-300"><Briefcase className="h-4 w-4" /></div>
+        <div className="soft-badge mt-0.5 rounded-xl p-2"><Briefcase className="h-4 w-4" /></div>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-semibold text-zinc-900 dark:text-zinc-100">{job.title}</h3>
-          <p className="truncate text-sm text-zinc-600 dark:text-zinc-400">{job.company}</p>
+          <h3 className="truncate font-semibold text-white">{job.title}</h3>
+          <p className="truncate text-sm text-slate-400">{job.company}</p>
         </div>
-        <button type="button" onClick={() => onDelete(job.id)} aria-label={`Delete ${job.title}`} className="rounded-md p-1.5 text-zinc-400 opacity-0 transition hover:bg-red-50 hover:text-red-600 group-hover:opacity-100 focus:opacity-100 dark:hover:bg-red-950/40"><Trash2 className="h-4 w-4" /></button>
+        <button type="button" onClick={() => onDelete(job.id)} aria-label={`Delete ${job.title}`} className="rounded-lg p-1.5 text-slate-500 opacity-0 transition hover:bg-red-500/10 hover:text-red-300 group-hover:opacity-100 focus:opacity-100"><Trash2 className="h-4 w-4" /></button>
       </div>
       <div className="flex items-center justify-between gap-2">
-        <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">{formatDate(job.date)}</span>
-        {job.url && <a href={job.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-white">Open listing <ExternalLink className="h-3.5 w-3.5" /></a>}
+        <span className="soft-badge rounded-lg px-2.5 py-1 text-xs font-semibold">{formatDate(job.date)}</span>
+        {job.url && <a href={job.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-slate-400 transition hover:text-blue-300">Open listing <ExternalLink className="h-3.5 w-3.5" /></a>}
       </div>
       <label className="sr-only" htmlFor={`move-${job.id}`}>Move job</label>
-      <select id={`move-${job.id}`} value={job.column} onChange={event => onMove(job.id, event.target.value)} className="rounded-lg border border-zinc-200 bg-zinc-50 px-2.5 py-2 text-xs font-medium text-zinc-700 outline-none transition focus:border-slate-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-        {COLUMNS.map(column => <option key={column.id} value={column.id}>{column.title}</option>)}
+      <select id={`move-${job.id}`} value={job.column} onChange={event => onMove(job.id, event.target.value)} className="job-select rounded-xl px-3 py-2.5 text-xs font-semibold">
+        {COLUMNS.map(column => <option key={column.id} value={column.id} className="bg-slate-900">{column.title}</option>)}
       </select>
     </article>
   )
@@ -125,18 +144,18 @@ function AddJobModal({ columnId, columnTitle, onClose, onAdd }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/60 p-4 backdrop-blur-sm" onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-700 dark:bg-zinc-900" onClick={event => event.stopPropagation()}>
+    <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="modal-card w-full max-w-md rounded-3xl p-6" onClick={event => event.stopPropagation()}>
         <div className="flex items-start justify-between gap-4">
-          <div><p className="text-xs font-semibold uppercase tracking-widest text-slate-500">New opportunity</p><h3 className="mt-1 text-xl font-semibold">Add to {columnTitle}</h3></div>
-          <button type="button" onClick={onClose} aria-label="Close dialog" className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"><X className="h-5 w-5" /></button>
+          <div><p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-300">New opportunity</p><h3 className="mt-1 text-2xl font-bold text-white">Add to {columnTitle}</h3></div>
+          <button type="button" onClick={onClose} aria-label="Close dialog" className="rounded-lg p-2 text-slate-400 transition hover:bg-white/5 hover:text-white"><X className="h-5 w-5" /></button>
         </div>
-        <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-3">
-          <input type="text" placeholder="Job title" value={title} onChange={event => setTitle(event.target.value)} className="rounded-lg border border-zinc-300 bg-white px-3 py-2.5 outline-none focus:border-slate-500 dark:border-zinc-700 dark:bg-zinc-800" autoFocus required />
-          <input type="text" placeholder="Company name" value={company} onChange={event => setCompany(event.target.value)} className="rounded-lg border border-zinc-300 bg-white px-3 py-2.5 outline-none focus:border-slate-500 dark:border-zinc-700 dark:bg-zinc-800" required />
-          <input type="date" value={date} onChange={event => setDate(event.target.value)} className="rounded-lg border border-zinc-300 bg-white px-3 py-2.5 outline-none focus:border-slate-500 dark:border-zinc-700 dark:bg-zinc-800" />
-          <input type="url" placeholder="Job listing URL (optional)" value={url} onChange={event => setUrl(event.target.value)} className="rounded-lg border border-zinc-300 bg-white px-3 py-2.5 outline-none focus:border-slate-500 dark:border-zinc-700 dark:bg-zinc-800" />
-          <div className="mt-2 flex gap-3"><button type="button" onClick={onClose} className="flex-1 rounded-lg border border-zinc-300 py-2.5 text-sm font-medium dark:border-zinc-700">Cancel</button><button type="submit" className="flex-1 rounded-lg bg-slate-800 py-2.5 text-sm font-semibold text-white dark:bg-slate-200 dark:text-zinc-900">Add job</button></div>
+        <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3">
+          <input type="text" placeholder="Job title" value={title} onChange={event => setTitle(event.target.value)} className="modal-input rounded-xl px-3 py-3" autoFocus required />
+          <input type="text" placeholder="Company name" value={company} onChange={event => setCompany(event.target.value)} className="modal-input rounded-xl px-3 py-3" required />
+          <input type="date" value={date} onChange={event => setDate(event.target.value)} className="modal-input rounded-xl px-3 py-3" />
+          <input type="url" placeholder="Job listing URL (optional)" value={url} onChange={event => setUrl(event.target.value)} className="modal-input rounded-xl px-3 py-3" />
+          <div className="mt-2 flex gap-3"><button type="button" onClick={onClose} className="secondary-btn flex-1 rounded-xl py-3 text-sm font-semibold">Cancel</button><button type="submit" className="primary-btn flex-1 rounded-xl py-3 text-sm font-bold">Add job</button></div>
         </form>
       </div>
     </div>
@@ -224,28 +243,57 @@ export default function App() {
   }, [jobs, query])
   const counts = COLUMNS.map(column => ({ ...column, count: jobs.filter(job => job.column === column.id).length }))
 
-  if (supabaseConfigured && !authReady) return <main className="flex min-h-screen items-center justify-center bg-zinc-950 text-zinc-200">Loading…</main>
+  if (supabaseConfigured && !authReady) return <main className="app-shell flex min-h-screen items-center justify-center text-slate-200">Loading…</main>
   if (supabaseConfigured && !session && !demoMode) return <AuthScreen onDemo={() => setDemoMode(true)} />
 
   return (
-    <div className="min-h-screen bg-slate-100 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
-      <header className="border-b border-zinc-200 bg-white/95 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95">
+    <div className="app-shell min-h-screen text-white">
+      <header className="dashboard-header">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3"><div className="rounded-xl bg-slate-900 p-2.5 text-white dark:bg-white dark:text-zinc-900"><Briefcase className="h-5 w-5" /></div><div><p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Career workspace</p><h1 className="text-xl font-bold tracking-tight">Job Tracker</h1></div></div>
+          <Brand />
           <div className="flex items-center gap-3">
-            <div className="hidden items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 sm:flex dark:bg-emerald-950/40 dark:text-emerald-300">{supabaseConfigured && session ? <Cloud className="h-4 w-4" /> : <CircleCheckBig className="h-4 w-4" />}{supabaseConfigured && session ? 'Cloud backup on' : 'Saved in this browser'}</div>
-            <div className="rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700 dark:bg-zinc-800 dark:text-zinc-300">{jobs.length} {jobs.length === 1 ? 'job' : 'jobs'}</div>
-            {session && <button type="button" onClick={() => supabase.auth.signOut()} aria-label="Sign out" className="rounded-lg border border-zinc-200 p-2 text-zinc-500 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"><LogOut className="h-4 w-4" /></button>}
+            <div className="success-badge hidden items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold sm:flex">{supabaseConfigured && session ? <Cloud className="h-4 w-4" /> : <CircleCheckBig className="h-4 w-4" />}{supabaseConfigured && session ? 'Cloud backup on' : 'Saved in this browser'}</div>
+            <div className="soft-badge rounded-xl px-3 py-2 text-sm font-semibold">{jobs.length} {jobs.length === 1 ? 'job' : 'jobs'}</div>
+            {session && <button type="button" onClick={() => supabase.auth.signOut()} aria-label="Sign out" className="secondary-btn rounded-xl p-2.5"><LogOut className="h-4 w-4" /></button>}
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="mb-7 flex flex-col justify-between gap-5 md:flex-row md:items-end"><div><p className="text-sm font-medium text-slate-500">{session ? `Signed in as ${session.user.email}` : 'Local demo mode'}</p><h2 className="mt-1 text-3xl font-bold tracking-tight">Keep every opportunity moving.</h2></div><label className="relative flex w-full md:w-80"><span className="sr-only">Search jobs</span><Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-zinc-400" /><input type="search" placeholder="Search jobs or companies" value={query} onChange={event => setQuery(event.target.value)} className="w-full rounded-lg border border-zinc-300 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-slate-500 dark:border-zinc-700 dark:bg-zinc-900" /></label></section>
-        {cloudError && <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">{cloudError}</div>}
-        <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">{counts.map(column => <div key={column.id} className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"><p className="text-sm font-medium text-zinc-500">{column.title}</p><p className="mt-1 text-2xl font-bold">{column.count}</p></div>)}</section>
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">{COLUMNS.map(column => <div key={column.id} className="flex min-h-80 flex-col rounded-2xl border border-zinc-200 bg-white/70 dark:border-zinc-800 dark:bg-zinc-900/60"><div className="border-b border-zinc-200 px-4 py-4 dark:border-zinc-800"><div className="flex items-center justify-between gap-3"><div><h3 className="font-semibold">{column.title}</h3><p className="mt-1 text-xs text-zinc-500">{column.description}</p></div><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700 dark:bg-zinc-800 dark:text-zinc-300">{counts.find(item => item.id === column.id)?.count}</span></div></div><div className="flex flex-1 flex-col gap-3 p-4">{filteredJobs.filter(job => job.column === column.id).map(job => <JobCard key={job.id} job={job} onMove={moveJob} onDelete={deleteJob} />)}<button type="button" onClick={() => setAddModal({ columnId: column.id, columnTitle: column.title })} className="mt-auto flex items-center justify-center gap-2 rounded-xl border border-dashed border-zinc-300 py-3 text-sm font-semibold text-zinc-600 transition hover:border-slate-500 hover:bg-slate-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"><Plus className="h-4 w-4" /> Add job</button></div></div>)}</section>
-        {filteredJobs.length === 0 && <div className="mt-6 rounded-xl border border-dashed border-zinc-300 p-8 text-center text-sm text-zinc-500 dark:border-zinc-700">No jobs match your search.</div>}
+
+      <main className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <section className="mb-7 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+          <div>
+            <p className="text-sm font-semibold text-blue-300">{session ? `Signed in as ${session.user.email}` : 'Local demo mode'}</p>
+            <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">Keep every opportunity moving.</h2>
+          </div>
+          <label className="relative flex w-full md:w-96"><span className="sr-only">Search jobs</span><Search className="pointer-events-none absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" /><input type="search" placeholder="Search jobs or companies" value={query} onChange={event => setQuery(event.target.value)} className="search-input w-full rounded-2xl py-3 pl-10 pr-3 text-sm" /></label>
+        </section>
+
+        {cloudError && <div className="mb-5 rounded-2xl border border-amber-300/20 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">{cloudError}</div>}
+
+        <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {counts.map(column => <div key={column.id} className="metric-card rounded-2xl p-5"><p className="text-sm font-medium text-slate-400">{column.title}</p><p className="mt-2 text-3xl font-extrabold text-white">{column.count}</p></div>)}
+        </section>
+
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {COLUMNS.map(column => (
+            <div key={column.id} className="kanban-column flex min-h-80 flex-col rounded-3xl">
+              <div className="border-b border-white/10 px-4 py-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div><h3 className="font-bold text-white">{column.title}</h3><p className="mt-1 text-xs text-slate-400">{column.description}</p></div>
+                  <span className="soft-badge rounded-full px-2.5 py-1 text-xs font-bold">{counts.find(item => item.id === column.id)?.count}</span>
+                </div>
+              </div>
+              <div className="flex flex-1 flex-col gap-3 p-4">
+                {filteredJobs.filter(job => job.column === column.id).map(job => <JobCard key={job.id} job={job} onMove={moveJob} onDelete={deleteJob} />)}
+                <button type="button" onClick={() => setAddModal({ columnId: column.id, columnTitle: column.title })} className="add-job-btn mt-auto flex items-center justify-center gap-2 rounded-2xl py-3 text-sm font-semibold"><Plus className="h-4 w-4" /> Add job</button>
+              </div>
+            </div>
+          ))}
+        </section>
+
+        {filteredJobs.length === 0 && <div className="mt-6 rounded-2xl border border-dashed border-white/15 bg-white/[0.02] p-8 text-center text-sm text-slate-400">No jobs match your search.</div>}
       </main>
+
       {addModal && <AddJobModal columnId={addModal.columnId} columnTitle={addModal.columnTitle} onClose={() => setAddModal(null)} onAdd={addJob} />}
     </div>
   )
