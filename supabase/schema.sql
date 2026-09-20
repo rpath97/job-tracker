@@ -4,7 +4,7 @@ create table if not exists public.jobs (
   title text not null,
   company text not null,
   date date,
-  column text not null check (column in ('backlog', 'applied', 'interviews', 'offers')),
+  "column" text not null check ("column" in ('backlog', 'applied', 'interviews', 'offers')),
   url text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
